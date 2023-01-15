@@ -5,28 +5,18 @@ body {
     font-family: "Source Sans Pro", Helvetica, sans-serif;
 }
 
-div {
-    max-width: 500px;
-    transform: translate(-50%, -50%);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    text-align: center;
-}
-
 h1 {
     color: white;
     font-weight: 300;
     letter-spacing: -0.025em;
     font-size: 3.25em;
-    transition: opacity 3s ease;
-    transition-delay: 0.2s;
     margin: 0 0 0.25em 0;
 }
 
 a {
     border-bottom: dotted 1px;
     color: rgba(255, 255, 255, 0.65);
+    text-decoration: none;
 }
 
 a:hover {
@@ -39,7 +29,21 @@ a:hover {
 
 .welcome {
     color: rgba(255, 255, 255, 0.65);
-    transition: opacity 3s ease;
-    transition-delay: 0.4s;
     letter-spacing: -0.025em;
+    font-size: 1.25em;
+}
+
+.load-first {
+    transition: opacity 3s ease;
+    transition-delay: 0.2s;
+}
+
+.load-second {
+    transition: opacity 3s ease;
+    transition-delay: 0.6s;
+}
+
+img {
+    border: 10px solid white;
+    margin-bottom: 10px;
 }
