@@ -15,7 +15,7 @@ h1 {
 
 a {
     border-bottom: dotted 1px;
-    color: rgba(255, 255, 255, 0.65);
+    color: rgba(255, 255, 255, 0.8);
     text-decoration: none;
 }
 
@@ -28,7 +28,7 @@ a:hover {
 }
 
 .welcome {
-    color: rgba(255, 255, 255, 0.65);
+    color: rgba(255, 255, 255, 0.7);
     letter-spacing: -0.025em;
     font-size: 1.25em;
 }
