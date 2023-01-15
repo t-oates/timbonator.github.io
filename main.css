@@ -33,6 +33,10 @@ a:hover {
     font-size: 1.25em;
 }
 
+.welcome .emoji {
+    color: white;
+}
+
 .load-first {
     transition: opacity 3s ease;
     transition-delay: 0.2s;
