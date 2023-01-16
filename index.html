@@ -7,9 +7,6 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
     <link rel="stylesheet" href="main.css">
-    <noscript>
-        <link rel="stylesheet" href="noscript.css">
-    </noscript>
 
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
@@ -23,18 +20,18 @@
         <div class="row justify-content-center h-100">
 
             <div class="col-sm-6 col-lg-5 align-self-sm-center align-self-end">
-                <span class="hidden load-first">
+                <span id="load-first">
 
-                    <h1 class="hidden">Tim Oates</h1>
+                    <h1>Tim Oates</h1>
 
-                    <p class="hidden welcome">
+                    <p class="welcome">
                         Welcome! I'm Tim <span class="emoji">👋</span>
                         I'm a Python developer currently looking for a new role.
                     </p>
-                    <p class="hidden welcome">
+                    <p class="welcome">
                         <b><a href="TimOates_CV.pdf">Check out my CV for more info.</a></b>
                     </p>
-                    <p class="hidden welcome">
+                    <p class="welcome">
                         Have a lovely day!
                     </p>
 
@@ -44,7 +41,8 @@
             <div class="col-sm-6 col-lg-5 align-self-sm-center align-self-start pb-2">
                 <img
                     src="jet.jpg"
-                    class="hidden load-second img-fluid"
+                    id="load-second"
+                    class="img-fluid"
                     alt="Jet, the gorgeous greyhound."
                     onmouseover="this.src='jet2.jpg';"
                     onmouseout="this.src='jet.jpg';">

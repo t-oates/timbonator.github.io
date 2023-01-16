@@ -1,7 +1,9 @@
-// Play initial animations on page load.
+//Play initial animations on page load.
 $(window).on('load', function() {
-    $('.hidden').removeClass('hidden');
+    $('#load-first').css('opacity', '0').fadeTo(2000, 1);
+    $('#load-second').css('opacity', '0').delay(500).fadeTo(2000, 1);
 });
+
 
 // Preload Jet image
 var image = new Image();
