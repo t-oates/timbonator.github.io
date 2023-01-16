@@ -51,3 +51,7 @@ a:hover {
 img {
     border: 10px solid white;
 }
+
+.row {
+    height: 100%;
+}
