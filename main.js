@@ -1,5 +1,5 @@
 //Play initial animations on page load.
-$(window).on('load', function() {
+$(function() {
     $('#load-first').css('opacity', '0').fadeTo(2000, 1);
     $('#load-second').css('opacity', '0').delay(500).fadeTo(2000, 1);
 });
