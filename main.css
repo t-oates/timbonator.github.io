@@ -52,6 +52,6 @@ img {
     border: 10px solid white;
 }
 
-.row {
+.container, .row {
     height: 100%;
 }
