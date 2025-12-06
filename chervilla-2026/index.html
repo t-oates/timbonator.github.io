@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Chervilla 2026</title>
-<meta name="viewport" content="width=device-width, initial-scale=1"> <!-- important -->
+<meta name="viewport" content="width=device-width, initial-scale=1"> <!-- mobile fix -->
 
 <style>
     body {
@@ -17,18 +17,49 @@
         align-items: center;
         min-height: 100vh;
         color: #0F3A3A;
+        text-align: center;
     }
 
     img.logo {
-        width: clamp(260px, 70vw, 520px); /* bigger and responsive */
+        width: clamp(260px, 70vw, 520px); /* responsive size */
         height: auto;
-        display: block;
+        margin-bottom: 40px;
+    }
+
+    .buttons {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap; /* helps on narrow screens */
+        justify-content: center;
+    }
+
+    .buttons a {
+        text-decoration: none;
+        padding: 14px 24px;
+        background: #F0C04A;
+        color: #0F3A3A;
+        border-radius: 6px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border: 2px solid #0F3A3A;
+        transition: 0.2s;
+        min-width: 140px; /* helps readability on mobile */
+        text-align: center;
+    }
+
+    .buttons a:hover {
+        background: #ffd978;
     }
 </style>
 </head>
 <body>
 
     <img src="logo.png" alt="Chervilla 2026 Logo" class="logo">
+
+    <div class="buttons">
+        <a href="info.html">Information</a>
+        <a href="rsvp.html">RSVP</a>
+    </div>
 
 </body>
 </html>
