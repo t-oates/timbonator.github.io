@@ -20,6 +20,11 @@
         position: relative;
     }
 
+    /* Remove mobile tap highlight */
+    a {
+        -webkit-tap-highlight-color: transparent;
+    }
+
     /* Main content wrapper */
     #main {
         display: flex;
@@ -83,6 +88,12 @@
         position: fixed;
         transition: left 0.3s ease, top 0.3s ease;
         z-index: 10;
+    }
+
+    /* Remove focus/active outline/flash */
+    #rsvpButton:focus,
+    #rsvpButton:active {
+        outline: none;
     }
 
     /* Refresh overlay */
@@ -235,6 +246,7 @@ const messages = [
 
 let revertTimeoutId = null;
 let isFree = false;
+let lastEventWasTouch = false;
 
 function showCheekyMessage() {
     const msg = messages[Math.floor(Math.random() * messages.length)];
@@ -291,12 +303,29 @@ function moveRsvpButton() {
 }
 
 function handleRunaway(e) {
-    if (e) e.preventDefault();
+    if (e) {
+        if (e.type === "touchstart") {
+            lastEventWasTouch = true;
+        } else if (e.type === "click" && lastEventWasTouch) {
+            // Ignore the ghost click after a touch
+            lastEventWasTouch = false;
+            return;
+        }
+        e.preventDefault();
+    }
+
     showCheekyMessage();
     moveRsvpButton();
+    rsvp.blur(); // drop focus quickly to avoid visual "clicked" state
 }
 
+// Desktop hover
 rsvp.addEventListener("mouseenter", handleRunaway);
+
+// Mobile: react on touchstart rather than waiting for click
+rsvp.addEventListener("touchstart", handleRunaway, { passive: false });
+
+// Fallback click (desktop / non-touch)
 rsvp.addEventListener("click", handleRunaway);
 </script>
 
