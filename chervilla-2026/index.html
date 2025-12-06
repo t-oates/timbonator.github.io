@@ -23,7 +23,13 @@
     img.logo {
         width: clamp(260px, 70vw, 520px);
         height: auto;
-        margin-bottom: 40px;
+        margin-bottom: 24px;
+    }
+
+    #countdown {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 32px;
     }
 
     .buttons {
@@ -63,10 +69,42 @@
 
     <img src="logo.png" alt="Chervilla 2026 Logo" class="logo">
 
+    <div id="countdown">RSVP opens in …</div>
+
     <div class="buttons">
         <a href="info.html">Information</a>
         <a href="rsvp.html">RSVP</a>
     </div>
+
+<script>
+    // Target time: 14 December 2025, 20:00 UK time (GMT in December)
+    const targetTime = new Date('2025-12-14T20:00:00+00:00').getTime();
+    const countdownEl = document.getElementById('countdown');
+
+    function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = targetTime - now;
+
+        if (distance <= 0) {
+            countdownEl.textContent = 'RSVP is open!';
+            clearInterval(timer);
+            return;
+        }
+
+        const days    = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours   = Math.floor((distance / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((distance / (1000 * 60)) % 60);
+        const seconds = Math.floor((distance / 1000) % 60);
+
+        const pad = n => String(n).padStart(2, '0');
+
+        countdownEl.textContent =
+            `RSVP opens in ${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+    }
+
+    const timer = setInterval(updateCountdown, 1000);
+    updateCountdown(); // initial call
+</script>
 
 </body>
 </html>
