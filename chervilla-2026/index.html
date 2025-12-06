@@ -23,8 +23,16 @@
     }
 
     img.logo {
-        width: clamp(260px, 70vw, 520px);
+        width: clamp(220px, 60vw, 480px);
+        max-height: 50vh;
+        object-fit: contain;
         height: auto;
+        margin-bottom: 8px;
+    }
+
+    #dates {
+        font-size: 1.3rem;
+        font-weight: 600;
         margin-bottom: 24px;
     }
 
@@ -51,7 +59,7 @@
         font-size: 1.1rem;
         font-weight: 600;
         border: 2px solid #0F3A3A;
-        transition: 0.2s;
+        transition: background 0.2s;
         min-width: 160px;
         text-align: center;
     }
@@ -60,13 +68,13 @@
         background: #ffd978;
     }
 
-    /* When the RSVP button is in "run away" mode */
+    /* Runaway mode */
     #rsvpButton.runaway {
-        position: fixed;      /* relative to viewport, not layout */
-        z-index: 10;          /* stay on top of logo/buttons */
+        position: fixed;
+        z-index: 10;
     }
 
-    /* Stack buttons vertically on mobile */
+    /* Stack buttons on mobile */
     @media (max-width: 600px) {
         .buttons {
             flex-direction: column;
@@ -77,6 +85,8 @@
 <body>
 
     <img src="logo.png" alt="Chervilla 2026 Logo" class="logo">
+
+    <div id="dates">11–17 July</div>
 
     <div id="countdown">RSVP opens in …</div>
 
@@ -90,7 +100,6 @@
        COUNTDOWN TIMER
     ------------------------------ */
 
-    // 14 December 2025, 20:00 UK (GMT)
     const targetTime = new Date('2025-12-14T20:00:00+00:00').getTime();
     const countdownEl = document.getElementById('countdown');
 
@@ -119,20 +128,64 @@
     updateCountdown();
 
 
+
     /* ------------------------------
-       RUN-AWAY RSVP BUTTON
+       RUNAWAY BUTTON + 20 MESSAGES
+       - message EVERY click
+       - always revert to "RSVP"
+       - safe under rapid clicks
     ------------------------------ */
 
     const rsvp = document.getElementById('rsvpButton');
 
-    rsvp.addEventListener('click', function (e) {
-        e.preventDefault(); // Disable the link
+    const messages = [
+        "You can't catch me!",
+        "Nice try!",
+        "Not today!",
+        "Too slow!",
+        "Almost had me!",
+        "I’m quicker than I look!",
+        "Try again…",
+        "Nope!",
+        "Denied!",
+        "Keep chasing!",
+        "You miss every shot you take!",
+        "I refuse.",
+        "Not happening.",
+        "Why are you like this?",
+        "You're persistent!",
+        "I'm running away now!",
+        "A for effort!",
+        "Maybe someday!",
+        "So close… but no.",
+        "You'll have to be faster!"
+    ];
 
-        // Put button in "runaway" (fixed) mode
+    let revertTimeoutId = null;
+
+    rsvp.addEventListener('click', function (e) {
+        e.preventDefault(); // Disable link
+
+        // Cheeky message EVERY click
+        const msg = messages[Math.floor(Math.random() * messages.length)];
+        rsvp.textContent = msg;
+
+        // Clear any previous timer so we don't revert to old messages
+        if (revertTimeoutId !== null) {
+            clearTimeout(revertTimeoutId);
+        }
+
+        revertTimeoutId = setTimeout(() => {
+            rsvp.textContent = "RSVP";
+            revertTimeoutId = null;
+        }, 1200);
+
+        // Enable runaway behaviour
         if (!rsvp.classList.contains('runaway')) {
             rsvp.classList.add('runaway');
         }
 
+        // Teleport to random position
         const padding = 20;
         const maxX = window.innerWidth - rsvp.offsetWidth - padding;
         const maxY = window.innerHeight - rsvp.offsetHeight - padding;
