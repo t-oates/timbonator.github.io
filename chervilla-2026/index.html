@@ -18,6 +18,8 @@
         min-height: 100vh;
         color: #0F3A3A;
         text-align: center;
+        position: relative;
+        overflow-x: hidden;
     }
 
     img.logo {
@@ -37,6 +39,7 @@
         gap: 20px;
         justify-content: center;
         flex-wrap: wrap;
+        position: relative;
     }
 
     .buttons a {
@@ -51,6 +54,7 @@
         transition: 0.2s;
         min-width: 160px;
         text-align: center;
+        position: relative;
     }
 
     .buttons a:hover {
@@ -73,11 +77,15 @@
 
     <div class="buttons">
         <a href="info.html">Information</a>
-        <a href="rsvp.html">RSVP</a>
+        <a id="rsvpButton" href="rsvp.html">RSVP</a>
     </div>
 
 <script>
-    // Target time: 14 December 2025, 20:00 UK time (GMT in December)
+    /* ------------------------------
+       COUNTDOWN TIMER
+    ------------------------------ */
+
+    // 14 December 2025, 20:00 UK (GMT)
     const targetTime = new Date('2025-12-14T20:00:00+00:00').getTime();
     const countdownEl = document.getElementById('countdown');
 
@@ -91,8 +99,8 @@
             return;
         }
 
-        const days    = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours   = Math.floor((distance / (1000 * 60 * 60)) % 24);
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
         const minutes = Math.floor((distance / (1000 * 60)) % 60);
         const seconds = Math.floor((distance / 1000) % 60);
 
@@ -103,7 +111,30 @@
     }
 
     const timer = setInterval(updateCountdown, 1000);
-    updateCountdown(); // initial call
+    updateCountdown();
+
+
+    /* ------------------------------
+       RUN-AWAY RSVP BUTTON
+    ------------------------------ */
+
+    const rsvp = document.getElementById('rsvpButton');
+
+    rsvp.addEventListener('click', function (e) {
+        e.preventDefault(); // Disable the link
+
+        rsvp.style.position = 'absolute'; // free it from layout
+
+        const padding = 20;
+        const maxX = window.innerWidth - rsvp.offsetWidth - padding;
+        const maxY = window.innerHeight - rsvp.offsetHeight - padding;
+
+        const x = Math.random() * maxX + padding;
+        const y = Math.random() * maxY + padding;
+
+        rsvp.style.left = `${x}px`;
+        rsvp.style.top = `${y}px`;
+    });
 </script>
 
 </body>
