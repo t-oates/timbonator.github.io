@@ -12,14 +12,19 @@
         background: #4c936f;
         font-family: system-ui, sans-serif;
         display: flex;
-        flex-direction: column;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
         color: #0F3A3A;
         text-align: center;
         position: relative;
-        overflow-x: hidden;
+    }
+
+    /* Main content wrapper */
+    #main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
     }
 
     img.logo {
@@ -31,9 +36,10 @@
     }
 
     #dates {
-        font-size: 1.3rem;
+        font-family: inherit;
+        font-size: 1.2rem;
         font-weight: 600;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
     }
 
     #countdown {
@@ -42,15 +48,15 @@
         margin-bottom: 32px;
     }
 
-    .buttons {
+    .buttons, .refresh-buttons {
         display: flex;
         gap: 20px;
         justify-content: center;
         flex-wrap: wrap;
-        position: relative;
+        margin-top: 20px;
     }
 
-    .buttons a {
+    .buttons a, .refresh-buttons a {
         text-decoration: none;
         padding: 14px 24px;
         background: #F0C04A;
@@ -59,24 +65,57 @@
         font-size: 1.1rem;
         font-weight: 600;
         border: 2px solid #0F3A3A;
-        transition: background 0.2s;
         min-width: 160px;
         text-align: center;
+        transition: background 0.2s;
     }
 
-    .buttons a:hover {
+    .buttons a:hover, .refresh-buttons a:hover {
         background: #ffd978;
     }
 
-    /* Runaway mode */
-    #rsvpButton.runaway {
+    /* RSVP button starts normal, becomes free-floating */
+    #rsvpButton {
+        position: relative;
+    }
+
+    #rsvpButton.free {
         position: fixed;
+        transition: left 0.3s ease, top 0.3s ease;
         z-index: 10;
     }
 
-    /* Stack buttons on mobile */
+    /* Refresh overlay */
+    #refreshOverlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #4c936f;
+        color: #0F3A3A;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+        flex-direction: column;
+    }
+
+    #refreshOverlay.visible {
+        display: flex;
+    }
+
+    #refreshOverlay p {
+        margin: 0.5rem 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    #refreshOverlay small {
+        font-size: 0.95rem;
+        font-weight: 500;
+    }
+
     @media (max-width: 600px) {
-        .buttons {
+        .buttons, .refresh-buttons {
             flex-direction: column;
         }
     }
@@ -84,118 +123,181 @@
 </head>
 <body>
 
-    <img src="logo.png" alt="Chervilla 2026 Logo" class="logo">
+    <div id="main">
+        <img src="logo.png" alt="Chervilla 2026 Logo" class="logo">
 
-    <div id="dates">11–17 July</div>
+        <div id="dates">11 - 17 July</div>
 
-    <div id="countdown">RSVP opens in …</div>
+        <div id="countdown">RSVP opens in …</div>
 
-    <div class="buttons">
-        <a href="info.html">Information</a>
-        <a id="rsvpButton" href="rsvp.html">RSVP</a>
+        <div class="buttons">
+            <a href="info.html">Information</a>
+            <a id="rsvpButton" href="rsvp.html">RSVP</a>
+        </div>
+    </div>
+
+    <div id="refreshOverlay">
+        <p>Please wait… RSVP is about to open.</p>
+        <p><small>This page will refresh in <span id="refreshCountdown">10</span> seconds.</small></p>
+
+        <div class="refresh-buttons">
+            <a href="info.html">Information</a>
+        </div>
     </div>
 
 <script>
-    /* ------------------------------
-       COUNTDOWN TIMER
-    ------------------------------ */
+/* ------------------------------
+   COUNTDOWN TIMER
+------------------------------ */
 
-    const targetTime = new Date('2025-12-14T20:00:00+00:00').getTime();
-    const countdownEl = document.getElementById('countdown');
+const targetTime = new Date('2025-12-14T20:00:00+00:00').getTime();
+const countdownEl = document.getElementById('countdown');
+const mainEl = document.getElementById('main');
+const refreshOverlay = document.getElementById('refreshOverlay');
+const refreshCountdownEl = document.getElementById('refreshCountdown');
 
-    function updateCountdown() {
-        const now = new Date().getTime();
-        const distance = targetTime - now;
+let refreshTimer = null;
 
-        if (distance <= 0) {
-            countdownEl.textContent = 'RSVP is open!';
-            clearInterval(timer);
-            return;
+function updateCountdown() {
+    const now = new Date().getTime();
+    const distance = targetTime - now;
+
+    if (distance <= 0) {
+        clearInterval(timer);
+
+        // Hide main content, show refresh overlay
+        mainEl.style.display = 'none';
+        refreshOverlay.classList.add('visible');
+
+        // 10-second countdown
+        let remaining = 10;
+        refreshCountdownEl.textContent = remaining;
+
+        if (!refreshTimer) {
+            refreshTimer = setInterval(() => {
+                remaining -= 1;
+                refreshCountdownEl.textContent = remaining;
+
+                if (remaining <= 0) {
+                    clearInterval(refreshTimer);
+                    location.reload();
+                }
+            }, 1000);
         }
 
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
-        const minutes = Math.floor((distance / (1000 * 60)) % 60);
-        const seconds = Math.floor((distance / 1000) % 60);
-
-        const pad = n => String(n).padStart(2, '0');
-
-        countdownEl.textContent =
-            `RSVP opens in ${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+        return;
     }
 
-    const timer = setInterval(updateCountdown, 1000);
-    updateCountdown();
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((distance / (1000 * 60)) % 60);
+    const seconds = Math.floor((distance / 1000) % 60);
+
+    const pad = n => String(n).padStart(2, '0');
+
+    countdownEl.textContent =
+        `RSVP opens in ${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+}
+
+const timer = setInterval(updateCountdown, 1000);
+updateCountdown();
 
 
 
-    /* ------------------------------
-       RUNAWAY BUTTON + 20 MESSAGES
-       - message EVERY click
-       - always revert to "RSVP"
-       - safe under rapid clicks
-    ------------------------------ */
+/* ------------------------------
+   RUNAWAY BUTTON + MESSAGES
+------------------------------ */
 
-    const rsvp = document.getElementById('rsvpButton');
+const rsvp = document.getElementById('rsvpButton');
 
-    const messages = [
-        "You can't catch me!",
-        "Nice try!",
-        "Not today!",
-        "Too slow!",
-        "Almost had me!",
-        "I’m quicker than I look!",
-        "Try again…",
-        "Nope!",
-        "Denied!",
-        "Keep chasing!",
-        "You miss every shot you take!",
-        "I refuse.",
-        "Not happening.",
-        "Why are you like this?",
-        "You're persistent!",
-        "I'm running away now!",
-        "A for effort!",
-        "Maybe someday!",
-        "So close… but no.",
-        "You'll have to be faster!"
-    ];
+const messages = [
+    "You can't catch me!",
+    "Nice try!",
+    "Not today!",
+    "Too slow!",
+    "Almost had me!",
+    "I’m quicker than I look!",
+    "Try again…",
+    "Nope!",
+    "Denied!",
+    "Keep chasing!",
+    "You miss every shot you take!",
+    "I refuse.",
+    "Not happening.",
+    "Why are you like this?",
+    "You're persistent!",
+    "I'm running away now!",
+    "A for effort!",
+    "Maybe someday!",
+    "So close… but no.",
+    "You'll have to be faster!"
+];
 
-    let revertTimeoutId = null;
+let revertTimeoutId = null;
+let isFree = false;
 
-    rsvp.addEventListener('click', function (e) {
-        e.preventDefault(); // Disable link
+function showCheekyMessage() {
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    rsvp.textContent = msg;
 
-        // Cheeky message EVERY click
-        const msg = messages[Math.floor(Math.random() * messages.length)];
-        rsvp.textContent = msg;
+    if (revertTimeoutId !== null) clearTimeout(revertTimeoutId);
 
-        // Clear any previous timer so we don't revert to old messages
-        if (revertTimeoutId !== null) {
-            clearTimeout(revertTimeoutId);
-        }
+    revertTimeoutId = setTimeout(() => {
+        rsvp.textContent = "RSVP";
+        revertTimeoutId = null;
+    }, 1200);
+}
 
-        revertTimeoutId = setTimeout(() => {
-            rsvp.textContent = "RSVP";
-            revertTimeoutId = null;
-        }, 1200);
+function ensureFreePosition() {
+    if (isFree) return;
+    const rect = rsvp.getBoundingClientRect();
+    const scrollY = window.scrollY || window.pageYOffset;
+    rsvp.classList.add('free');
+    rsvp.style.left = rect.left + "px";
+    rsvp.style.top = rect.top + scrollY + "px";
+    isFree = true;
+}
 
-        // Enable runaway behaviour
-        if (!rsvp.classList.contains('runaway')) {
-            rsvp.classList.add('runaway');
-        }
+function moveRsvpButton() {
+    ensureFreePosition();
 
-        // Teleport to random position
-        const padding = 20;
-        const maxX = window.innerWidth - rsvp.offsetWidth - padding;
-        const maxY = window.innerHeight - rsvp.offsetHeight - padding;
+    const padding = 20;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
 
-        const x = Math.random() * maxX + padding;
-        const y = Math.random() * maxY + padding;
+    const btnWidth = rsvp.offsetWidth;
+    const btnHeight = rsvp.offsetHeight;
 
-        rsvp.style.left = `${x}px`;
-        rsvp.style.top = `${y}px`;
-    });
+    const minX = padding;
+    const maxX = viewportWidth - padding - btnWidth;
+    const minY = padding;
+    const maxY = viewportHeight - padding - btnHeight;
+
+    const currentLeft = parseFloat(rsvp.style.left) || minX;
+    const currentTop = parseFloat(rsvp.style.top) || minY;
+
+    let x, y;
+    let attempts = 0;
+    const minDistance = 80;
+
+    do {
+        x = Math.random() * (maxX - minX) + minX;
+        y = Math.random() * (maxY - minY) + minY;
+        attempts++;
+    } while (Math.hypot(x - currentLeft, y - currentTop) < minDistance && attempts < 10);
+
+    rsvp.style.left = x + "px";
+    rsvp.style.top = y + "px";
+}
+
+function handleRunaway(e) {
+    if (e) e.preventDefault();
+    showCheekyMessage();
+    moveRsvpButton();
+}
+
+rsvp.addEventListener("mouseenter", handleRunaway);
+rsvp.addEventListener("click", handleRunaway);
 </script>
 
 </body>
