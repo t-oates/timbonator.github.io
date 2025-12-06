@@ -54,11 +54,16 @@
         transition: 0.2s;
         min-width: 160px;
         text-align: center;
-        position: relative;
     }
 
     .buttons a:hover {
         background: #ffd978;
+    }
+
+    /* When the RSVP button is in "run away" mode */
+    #rsvpButton.runaway {
+        position: fixed;      /* relative to viewport, not layout */
+        z-index: 10;          /* stay on top of logo/buttons */
     }
 
     /* Stack buttons vertically on mobile */
@@ -123,7 +128,10 @@
     rsvp.addEventListener('click', function (e) {
         e.preventDefault(); // Disable the link
 
-        rsvp.style.position = 'absolute'; // free it from layout
+        // Put button in "runaway" (fixed) mode
+        if (!rsvp.classList.contains('runaway')) {
+            rsvp.classList.add('runaway');
+        }
 
         const padding = 20;
         const maxX = window.innerWidth - rsvp.offsetWidth - padding;
