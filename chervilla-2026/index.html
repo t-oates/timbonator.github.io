@@ -21,12 +21,10 @@
         position: relative;
     }
 
-    /* Remove mobile tap highlight */
     a {
         -webkit-tap-highlight-color: transparent;
     }
 
-    /* Main content wrapper */
     #main {
         display: flex;
         flex-direction: column;
@@ -42,7 +40,6 @@
     }
 
     #dates {
-        font-family: inherit;
         font-size: 1.2rem;
         font-weight: 600;
         margin-bottom: 20px;
@@ -60,6 +57,7 @@
         justify-content: center;
         flex-wrap: wrap;
         margin-top: 20px;
+        margin-bottom: 20px;
     }
 
     .buttons a, .refresh-buttons a {
@@ -80,7 +78,6 @@
         background: #ffd978;
     }
 
-    /* RSVP button starts normal, becomes free-floating */
     #rsvpButton {
         position: relative;
     }
@@ -91,13 +88,11 @@
         z-index: 10;
     }
 
-    /* Remove focus/active outline/flash */
     #rsvpButton:focus,
     #rsvpButton:active {
         outline: none;
     }
 
-    /* Refresh overlay */
     #refreshOverlay {
         display: none;
         position: fixed;
@@ -113,17 +108,6 @@
 
     #refreshOverlay.visible {
         display: flex;
-    }
-
-    #refreshOverlay p {
-        margin: 0.5rem 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-    }
-
-    #refreshOverlay small {
-        font-size: 0.95rem;
-        font-weight: 500;
     }
 
     @media (max-width: 600px) {
@@ -149,12 +133,8 @@
     </div>
 
     <div id="refreshOverlay">
-        <p>Please wait… RSVP is about to open.</p>
+        <p>Please wait… RSVP will open shortly.</p>
         <p><small>This page will refresh in <span id="refreshCountdown">10</span> seconds.</small></p>
-
-        <div class="refresh-buttons">
-            <a href="info.pdf">Information</a>
-        </div>
     </div>
 
 <script>
@@ -170,6 +150,24 @@ const refreshCountdownEl = document.getElementById('refreshCountdown');
 
 let refreshTimer = null;
 
+// Overlay "please wait" messages
+const waitMessages = [
+    "Any second now…",
+    "Can you handle the suspense?",
+    "Brace yourself…",
+    "Hold tight…",
+    "It’s almost time…",
+    "Stay tuned…",
+    "Just a moment…",
+    "We’re nearly there…",
+    "Good things take time…",
+    "Don’t go anywhere…"
+];
+
+function getRandomWaitMessage() {
+    return waitMessages[Math.floor(Math.random() * waitMessages.length)];
+}
+
 function updateCountdown() {
     const now = new Date().getTime();
     const distance = targetTime - now;
@@ -177,26 +175,37 @@ function updateCountdown() {
     if (distance <= 0) {
         clearInterval(timer);
 
-        // Hide main content, show refresh overlay
         mainEl.style.display = 'none';
         refreshOverlay.classList.add('visible');
 
-        // 10-second countdown
-        let remaining = 10;
+        const overlayText = refreshOverlay.querySelector("p");
+
+        // How long since countdown ended (ms, positive)
+        const timeSinceEnd = Math.abs(distance);
+
+		if (timeSinceEnd >= 5 * 60 * 1000) {
+			overlayText.textContent =
+				"It has been a while now. There might be a caching issue. Please try a different browser or contact Tim. Sorry!";
+		} else {
+			overlayText.innerHTML =
+				"Please wait, RSVP will open shortly.<br>" +
+				getRandomWaitMessage();
+		}
+
+
+        let remaining = 5;
         refreshCountdownEl.textContent = remaining;
 
         if (!refreshTimer) {
             refreshTimer = setInterval(() => {
                 remaining -= 1;
                 refreshCountdownEl.textContent = remaining;
-
                 if (remaining <= 0) {
                     clearInterval(refreshTimer);
                     location.reload();
                 }
             }, 1000);
         }
-
         return;
     }
 
@@ -253,11 +262,10 @@ function showCheekyMessage() {
     const msg = messages[Math.floor(Math.random() * messages.length)];
     rsvp.textContent = msg;
 
-    if (revertTimeoutId !== null) clearTimeout(revertTimeoutId);
+    clearTimeout(revertTimeoutId);
 
     revertTimeoutId = setTimeout(() => {
         rsvp.textContent = "RSVP";
-        revertTimeoutId = null;
     }, 1200);
 }
 
@@ -307,29 +315,32 @@ function handleRunaway(e) {
     if (e) {
         if (e.type === "touchstart") {
             lastEventWasTouch = true;
-        } else if (e.type === "click" && lastEventWasTouch) {
-            // Ignore the ghost click after a touch
+        }
+        else if (e.type === "click" && lastEventWasTouch) {
             lastEventWasTouch = false;
+            e.preventDefault();
+            e.stopImmediatePropagation?.();
             return;
         }
+
         e.preventDefault();
+        e.stopImmediatePropagation?.();
     }
 
     showCheekyMessage();
     moveRsvpButton();
-    rsvp.blur(); // drop focus quickly to avoid visual "clicked" state
+    rsvp.blur();
 }
 
 // Desktop hover
 rsvp.addEventListener("mouseenter", handleRunaway);
 
-// Mobile: react on touchstart rather than waiting for click
+// Mobile
 rsvp.addEventListener("touchstart", handleRunaway, { passive: false });
 
-// Fallback click (desktop / non-touch)
+// Desktop fallback click
 rsvp.addEventListener("click", handleRunaway);
 </script>
 
 </body>
 </html>
-
