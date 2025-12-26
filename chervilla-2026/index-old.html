@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Chervilla 2026</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: #FFF4C2;
+        font-family: system-ui, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        color: #0F3A3A;
+        text-align: center;
+        position: relative;
+    }
+
+    a {
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    #main {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    img.logo {
+        width: clamp(220px, 60vw, 480px);
+        max-height: 50vh;
+        object-fit: contain;
+        height: auto;
+        margin-bottom: 8px;
+    }
+
+    #dates {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    #countdown {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 32px;
+    }
+
+    .buttons, .refresh-buttons {
+        display: flex;
+        gap: 20px;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .buttons a, .refresh-buttons a {
+        text-decoration: none;
+        padding: 14px 24px;
+        background: #F0C04A;
+        color: #0F3A3A;
+        border-radius: 6px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border: 2px solid #0F3A3A;
+        min-width: 160px;
+        text-align: center;
+        transition: background 0.2s;
+    }
+
+    .buttons a:hover, .refresh-buttons a:hover {
+        background: #ffd978;
+    }
+
+    #rsvpButton {
+        position: relative;
+    }
+
+    #rsvpButton.free {
+        position: fixed;
+        transition: left 0.3s ease, top 0.3s ease;
+        z-index: 10;
+    }
+
+    #rsvpButton:focus,
+    #rsvpButton:active {
+        outline: none;
+    }
+
+    #refreshOverlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: #FFF4C2;
+        color: #0F3A3A;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 20px;
+        flex-direction: column;
+    }
+
+    #refreshOverlay.visible {
+        display: flex;
+    }
+
+    @media (max-width: 600px) {
+        .buttons, .refresh-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+</head>
+<body>
+
+    <div id="main">
+        <img src="logo.png" alt="Chervilla 2026 Logo" class="logo">
+
+        <div id="dates">11 - 18 July</div>
+
+        <div id="countdown">RSVP opens in …</div>
+
+        <div class="buttons">
+            <a href="info/chervilla-2026-20251214.pdf">Information</a>
+            <a id="rsvpButton" href="rsvp.html">RSVP</a>
+        </div>
+    </div>
+
+    <div id="refreshOverlay">
+        <p>Please wait… RSVP will open shortly.</p>
+        <p><small>This page will refresh in <span id="refreshCountdown">10</span> seconds.</small></p>
+    </div>
+
+<script>
+/* ------------------------------
+   COUNTDOWN TIMER
+------------------------------ */
+
+const targetTime = new Date('2025-12-14T20:00:00+00:00').getTime();
+const countdownEl = document.getElementById('countdown');
+const mainEl = document.getElementById('main');
+const refreshOverlay = document.getElementById('refreshOverlay');
+const refreshCountdownEl = document.getElementById('refreshCountdown');
+
+let refreshTimer = null;
+
+// Overlay "please wait" messages
+const waitMessages = [
+    "Any second now…",
+    "Can you handle the suspense?",
+    "Brace yourself…",
+    "Hold tight…",
+    "It’s almost time…",
+    "Stay tuned…",
+    "Just a moment…",
+    "We’re nearly there…",
+    "Good things take time…",
+    "Don’t go anywhere…"
+];
+
+function getRandomWaitMessage() {
+    return waitMessages[Math.floor(Math.random() * waitMessages.length)];
+}
+
+function updateCountdown() {
+    const now = new Date().getTime();
+    const distance = targetTime - now;
+
+    if (distance <= 0) {
+        clearInterval(timer);
+
+        mainEl.style.display = 'none';
+        refreshOverlay.classList.add('visible');
+
+        const overlayText = refreshOverlay.querySelector("p");
+
+        // How long since countdown ended (ms, positive)
+        const timeSinceEnd = Math.abs(distance);
+
+		if (timeSinceEnd >= 5 * 60 * 1000) {
+			overlayText.textContent =
+				"It has been a while now. There might be a caching issue. Please try a different browser or contact Tim. Sorry!";
+		} else {
+			overlayText.innerHTML =
+				"Please wait, RSVP will open shortly.<br>" +
+				getRandomWaitMessage();
+		}
+
+
+        let remaining = 5;
+        refreshCountdownEl.textContent = remaining;
+
+        if (!refreshTimer) {
+            refreshTimer = setInterval(() => {
+                remaining -= 1;
+                refreshCountdownEl.textContent = remaining;
+                if (remaining <= 0) {
+                    clearInterval(refreshTimer);
+                    location.reload();
+                }
+            }, 1000);
+        }
+        return;
+    }
+
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
+    const minutes = Math.floor((distance / (1000 * 60)) % 60);
+    const seconds = Math.floor((distance / 1000) % 60);
+
+    const pad = n => String(n).padStart(2, '0');
+
+    countdownEl.textContent =
+        `RSVP opens in ${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+}
+
+const timer = setInterval(updateCountdown, 1000);
+updateCountdown();
+
+
+
+/* ------------------------------
+   RUNAWAY BUTTON + MESSAGES
+------------------------------ */
+
+const rsvp = document.getElementById('rsvpButton');
+
+const messages = [
+    "You can't catch me!",
+    "Nice try!",
+    "Not today!",
+    "Too slow!",
+    "Almost had me!",
+    "I’m quicker than I look!",
+    "Try again…",
+    "Nope!",
+    "Denied!",
+    "Keep chasing!",
+    "You miss every shot you take!",
+    "I refuse.",
+    "Not happening.",
+    "Why are you like this?",
+    "You're persistent!",
+    "I'm running away now!",
+    "A for effort!",
+    "Maybe someday!",
+    "So close… but no.",
+    "You'll have to be faster!"
+];
+
+let revertTimeoutId = null;
+let isFree = false;
+let lastEventWasTouch = false;
+
+function showCheekyMessage() {
+    const msg = messages[Math.floor(Math.random() * messages.length)];
+    rsvp.textContent = msg;
+
+    clearTimeout(revertTimeoutId);
+
+    revertTimeoutId = setTimeout(() => {
+        rsvp.textContent = "RSVP";
+    }, 1200);
+}
+
+function ensureFreePosition() {
+    if (isFree) return;
+    const rect = rsvp.getBoundingClientRect();
+    const scrollY = window.scrollY || window.pageYOffset;
+    rsvp.classList.add('free');
+    rsvp.style.left = rect.left + "px";
+    rsvp.style.top = rect.top + scrollY + "px";
+    isFree = true;
+}
+
+function moveRsvpButton() {
+    ensureFreePosition();
+
+    const padding = 20;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    const btnWidth = rsvp.offsetWidth;
+    const btnHeight = rsvp.offsetHeight;
+
+    const minX = padding;
+    const maxX = viewportWidth - padding - btnWidth;
+    const minY = padding;
+    const maxY = viewportHeight - padding - btnHeight;
+
+    const currentLeft = parseFloat(rsvp.style.left) || minX;
+    const currentTop = parseFloat(rsvp.style.top) || minY;
+
+    let x, y;
+    let attempts = 0;
+    const minDistance = 80;
+
+    do {
+        x = Math.random() * (maxX - minX) + minX;
+        y = Math.random() * (maxY - minY) + minY;
+        attempts++;
+    } while (Math.hypot(x - currentLeft, y - currentTop) < minDistance && attempts < 10);
+
+    rsvp.style.left = x + "px";
+    rsvp.style.top = y + "px";
+}
+
+function handleRunaway(e) {
+    if (e) {
+        if (e.type === "touchstart") {
+            lastEventWasTouch = true;
+        }
+        else if (e.type === "click" && lastEventWasTouch) {
+            lastEventWasTouch = false;
+            e.preventDefault();
+            e.stopImmediatePropagation?.();
+            return;
+        }
+
+        e.preventDefault();
+        e.stopImmediatePropagation?.();
+    }
+
+    showCheekyMessage();
+    moveRsvpButton();
+    rsvp.blur();
+}
+
+// Desktop hover
+rsvp.addEventListener("mouseenter", handleRunaway);
+
+// Mobile
+rsvp.addEventListener("touchstart", handleRunaway, { passive: false });
+
+// Desktop fallback click
+rsvp.addEventListener("click", handleRunaway);
+</script>
+
+</body>
+</html>
